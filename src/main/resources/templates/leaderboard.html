@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard — T&amp;C Translator</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+<div class="page-wrapper">
+    <header class="site-header">
+        <a th:href="@{/}" class="back-link">← Back to Home</a>
+        <h1>📊 Leaderboard</h1>
+        <p class="subtitle">Which apps are sneaky? Which ones play fair?</p>
+    </header>
+
+    <main class="leaderboard-content">
+
+        <section class="leaderboard-section">
+            <h2 class="section-title critical-title">🦈 Most Sneaky Apps</h2>
+            <p class="section-desc">Lowest trust scores — these apps ask for a lot!</p>
+
+            <div th:if="${mostPredatory.isEmpty()}" class="empty-state">
+                No analyses yet! <a th:href="@{/}">Be the first to analyze something!</a>
+            </div>
+
+            <table th:if="${!mostPredatory.isEmpty()}" class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>App Name</th>
+                        <th>Trust Score</th>
+                        <th>Category</th>
+                        <th>When</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="analysis, stat : ${mostPredatory}">
+                        <td class="rank-col" th:text="${stat.index + 1}">1</td>
+                        <td class="app-name-col" th:text="${analysis.appName}">App Name</td>
+                        <td class="score-col">
+                            <span th:text="${analysis.trustScore}" class="score-badge bad-score">2.1</span>
+                            <span th:text="${analysis.trustEmoji}">🦈</span>
+                        </td>
+                        <td>
+                            <span class="label-badge predatory-badge" th:text="${analysis.trustLabel}">PREDATORY</span>
+                        </td>
+                        <td class="date-col" th:text="${analysis.formattedDate}">May 2025</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="leaderboard-section">
+            <h2 class="section-title fair-title">🌟 Most Honest Apps</h2>
+            <p class="section-desc">Highest trust scores — these actually respect their users!</p>
+
+            <div th:if="${mostHonest.isEmpty()}" class="empty-state">
+                No analyses yet! <a th:href="@{/}">Analyze something to get started!</a>
+            </div>
+
+            <table th:if="${!mostHonest.isEmpty()}" class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>App Name</th>
+                        <th>Trust Score</th>
+                        <th>Category</th>
+                        <th>When</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="analysis, stat : ${mostHonest}">
+                        <td class="rank-col" th:text="${stat.index + 1}">1</td>
+                        <td class="app-name-col" th:text="${analysis.appName}">App Name</td>
+                        <td class="score-col">
+                            <span th:text="${analysis.trustScore}" class="score-badge good-score">9.1</span>
+                            <span th:text="${analysis.trustEmoji}">🌟</span>
+                        </td>
+                        <td>
+                            <span class="label-badge honest-badge" th:text="${analysis.trustLabel}">HONEST</span>
+                        </td>
+                        <td class="date-col" th:text="${analysis.formattedDate}">May 2025</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="action-buttons">
+            <a th:href="@{/}" class="btn-primary">🔍 Analyze Something New</a>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <p class="footer-note">T&amp;C Translator — a student project 🎓</p>
+    </footer>
+</div>
+
+</body>
+</html>

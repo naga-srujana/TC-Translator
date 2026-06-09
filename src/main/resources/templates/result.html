@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'T&amp;C Analysis — ' + ${result.appName}">T&amp;C Analysis</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+<div class="page-wrapper">
+    <header class="site-header">
+        <a th:href="@{/}" class="back-link">← Analyze Another</a>
+        <h1>🔍 T&amp;C Translator</h1>
+    </header>
+
+    <main class="result-content">
+
+        <!-- SHOCK STATS -->
+        <div class="shock-stats">
+            <h2 class="stats-title">😱 Reality Check</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <div class="stat-info">
+                        <span class="stat-label">Reading time</span>
+                        <span class="stat-value" th:text="${result.readingTimeFormatted}">4h 23m</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">📄</span>
+                    <div class="stat-info">
+                        <span class="stat-label">Total words</span>
+                        <span class="stat-value" th:text="${#numbers.formatInteger(result.wordCount, 1, 'COMMA')}">18,459</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🤯</span>
+                    <div class="stat-info">
+                        <span class="stat-label">Reading level</span>
+                        <span class="stat-value" th:text="${result.readingLevel}">Legal Nightmare</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">⚡</span>
+                    <div class="stat-info">
+                        <span class="stat-label">We did it in</span>
+                        <span class="stat-value" th:text="${result.analysisTimeMs / 1000} + ' seconds'">4 seconds</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRUST SCORE -->
+        <div class="trust-score-section">
+            <div class="app-name-display" th:text="${result.appName}">App Name</div>
+
+            <div class="score-circle">
+                <div class="score-number" id="scoreDisplay">0</div>
+                <div class="score-label-small">out of 10</div>
+            </div>
+
+            <div class="trust-badge">
+                <span class="trust-emoji" th:text="${result.trustEmoji}">🦈</span>
+                <span class="trust-text" th:text="${result.trustLabel}">PREDATORY</span>
+            </div>
+
+            <div class="trust-tagline" th:switch="${result.trustLabel}">
+                <p th:case="'PREDATORY'">⚠️ This app wants a lot from you — read carefully before agreeing!</p>
+                <p th:case="'SUSPICIOUS'">🤔 A few things here worth knowing before you click agree</p>
+                <p th:case="'AVERAGE'">😐 Pretty standard stuff — not amazing, not terrible</p>
+                <p th:case="'RESPECTFUL'">👍 These folks actually respect you a little!</p>
+                <p th:case="'HONEST'">🌟 Rare find! These terms are actually fair and clear</p>
+                <p th:case="*"></p>
+            </div>
+        </div>
+
+        <!-- ONE LINE SUMMARY -->
+        <div class="one-liner-box">
+            <span class="one-liner-emoji">💬</span>
+            <div>
+                <strong>Bottom line:</strong>
+                <span th:text="${result.oneLineSummary}">Summary here.</span>
+            </div>
+        </div>
+
+        <!-- SAVAGE MODE TOGGLE -->
+        <div class="mode-section">
+            <p class="mode-label">Choose how you want the explanation:</p>
+            <div class="mode-toggle-container">
+                <button class="mode-btn active" id="normalModeBtn" onclick="setMode('normal')">
+                    😊 Normal Mode
+                </button>
+                <button class="mode-btn savage-toggle" id="savageModeBtn" onclick="setMode('savage')">
+                    🔥 Savage Mode
+                </button>
+            </div>
+            <p class="mode-hint" id="modeHint">Simple and clear explanations</p>
+        </div>
+
+        <!-- CRITICAL CLAUSES -->
+        <div th:if="${!result.criticalClauses.isEmpty()}" class="clauses-section">
+            <h2 class="section-title critical-title">
+                🚨 Important — These Affect Your Rights
+            </h2>
+            <p class="section-subtitle">These are the big ones. You should definitely know about these!</p>
+            <div class="clauses-grid">
+                <div th:each="clause : ${result.criticalClauses}" class="clause-card critical-card">
+                    <div class="clause-header">
+                        <span class="clause-icon">🚨</span>
+                        <h3 class="clause-title" th:text="${clause.title}">Clause Title</h3>
+                    </div>
+                    <p class="clause-explanation normal-text" th:text="${clause.normalExplanation}">Normal explanation.</p>
+                    <p class="clause-explanation savage-text" style="display:none;" th:text="${clause.savageExplanation}">Savage explanation.</p>
+                    <div class="original-quote-box">
+                        <span class="quote-label">📜 Actual text:</span>
+                        <blockquote class="original-quote" th:text="${clause.originalQuote}">Original quote.</blockquote>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WARNING CLAUSES -->
+        <div th:if="${!result.warningClauses.isEmpty()}" class="clauses-section">
+            <h2 class="section-title warning-title">
+                ⚠️ Good to Know
+            </h2>
+            <p class="section-subtitle">Not critical, but worth being aware of!</p>
+            <div class="clauses-grid">
+                <div th:each="clause : ${result.warningClauses}" class="clause-card warning-card">
+                    <div class="clause-header">
+                        <span class="clause-icon">⚠️</span>
+                        <h3 class="clause-title" th:text="${clause.title}">Clause Title</h3>
+                    </div>
+                    <p class="clause-explanation normal-text" th:text="${clause.normalExplanation}">Normal explanation.</p>
+                    <p class="clause-explanation savage-text" style="display:none;" th:text="${clause.savageExplanation}">Savage explanation.</p>
+                    <div class="original-quote-box">
+                        <span class="quote-label">📜 Actual text:</span>
+                        <blockquote class="original-quote" th:text="${clause.originalQuote}">Original quote.</blockquote>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAIR CLAUSES -->
+        <div th:if="${!result.fairClauses.isEmpty()}" class="clauses-section">
+            <h2 class="section-title fair-title">
+                ✅ They Did This Right!
+            </h2>
+            <p class="section-subtitle">Give credit where it's due — these are actually fair!</p>
+            <div class="clauses-grid">
+                <div th:each="clause : ${result.fairClauses}" class="clause-card fair-card">
+                    <div class="clause-header">
+                        <span class="clause-icon">✅</span>
+                        <h3 class="clause-title" th:text="${clause.title}">Clause Title</h3>
+                    </div>
+                    <p class="clause-explanation normal-text" th:text="${clause.normalExplanation}">Normal explanation.</p>
+                    <p class="clause-explanation savage-text" style="display:none;" th:text="${clause.savageExplanation}">Savage explanation.</p>
+                    <div class="original-quote-box">
+                        <span class="quote-label">📜 Actual text:</span>
+                        <blockquote class="original-quote" th:text="${clause.originalQuote}">Original quote.</blockquote>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATE -->
+        <div class="certificate-section">
+            <h2 class="section-title">🏆 Your Certificate of Agreement</h2>
+            <p class="section-subtitle">Here's what you officially said YES to by clicking "I Agree"</p>
+
+            <div class="certificate" id="certificateBox">
+                <div class="cert-top">
+                    <div class="cert-trophy">🏆</div>
+                    <div class="cert-header">CERTIFICATE OF AGREEMENT</div>
+                    <div class="cert-subheader">This is to certify that</div>
+                </div>
+                <div class="cert-divider">✦ ✦ ✦</div>
+                <p class="cert-text">
+                    By agreeing to <strong th:text="${result.appName}">App Name</strong>'s
+                    Terms &amp; Conditions, you have officially said YES to:
+                </p>
+                <ul class="cert-bullets">
+                    <li th:each="bullet : ${result.certificateBullets}" th:text="${bullet}">Bullet point</li>
+                </ul>
+                <div class="cert-divider">✦ ✦ ✦</div>
+                <div class="cert-footer">
+                    <div class="cert-footer-item">✍️ Signed by: <em>You (probably didn't read this)</em></div>
+                    <div class="cert-footer-item">👀 Witnessed by: <em>Nobody who cares</em></div>
+                    <div class="cert-footer-item">📅 Date: <span th:text="${today}">Today</span></div>
+                </div>
+            </div>
+
+            <button class="btn-copy" onclick="copyCertificate()">
+                📋 Copy &amp; Share Certificate
+            </button>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="action-buttons">
+            <a th:href="@{/}" class="btn-primary">🔍 Analyze Another App</a>
+            <a th:href="@{/leaderboard}" class="btn-secondary">📊 View Leaderboard</a>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <p class="footer-note">T&amp;C Translator — a student project 🎓</p>
+    </footer>
+</div>
+
+<span id="actualScore" th:text="${result.trustScore}" style="display:none;"></span>
+
+<script>
+    // score animation - count up from 0
+    const actualScore = parseFloat(document.getElementById('actualScore').textContent);
+    const scoreDisplay = document.getElementById('scoreDisplay');
+
+    let current = 0;
+    const steps = 60;
+    const increment = actualScore / steps;
+    const intervalTime = 1500 / steps;
+
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= actualScore) {
+            current = actualScore;
+            clearInterval(timer);
+        }
+        scoreDisplay.textContent = current.toFixed(1);
+    }, intervalTime);
+
+    // color the score
+    function colorScore() {
+        if (actualScore < 2) scoreDisplay.style.color = '#e74c3c';
+        else if (actualScore < 4) scoreDisplay.style.color = '#e67e22';
+        else if (actualScore < 6) scoreDisplay.style.color = '#f39c12';
+        else if (actualScore < 8) scoreDisplay.style.color = '#27ae60';
+        else scoreDisplay.style.color = '#16a085';
+    }
+    colorScore();
+
+    // savage mode toggle
+    function setMode(mode) {
+        const normalTexts = document.querySelectorAll('.normal-text');
+        const savageTexts = document.querySelectorAll('.savage-text');
+        const normalBtn = document.getElementById('normalModeBtn');
+        const savageBtn = document.getElementById('savageModeBtn');
+        const hint = document.getElementById('modeHint');
+
+        if (mode === 'savage') {
+            normalTexts.forEach(el => el.style.display = 'none');
+            savageTexts.forEach(el => el.style.display = 'block');
+            savageBtn.classList.add('active');
+            normalBtn.classList.remove('active');
+            hint.textContent = '🔥 Honest, funny, and a little cheeky!';
+        } else {
+            normalTexts.forEach(el => el.style.display = 'block');
+            savageTexts.forEach(el => el.style.display = 'none');
+            normalBtn.classList.add('active');
+            savageBtn.classList.remove('active');
+            hint.textContent = '😊 Simple and clear explanations';
+        }
+    }
+
+    // copy certificate
+    function copyCertificate() {
+        const appName = document.querySelector('.cert-text strong').textContent;
+        const bullets = document.querySelectorAll('.cert-bullets li');
+        const date = document.querySelector('.cert-footer span').textContent;
+        let bulletText = '';
+        bullets.forEach(b => { bulletText += '  ✗ ' + b.textContent + '\n'; });
+
+        const certText =
+`════════════════════════════════════════
+        🏆 CERTIFICATE OF AGREEMENT 🏆
+════════════════════════════════════════
+
+By agreeing to ${appName}'s Terms & Conditions,
+you officially said YES to:
+
+${bulletText}
+════════════════════════════════════════
+✍️  Signed by: You (probably didn't read)
+👀 Witnessed by: Nobody who cares
+📅 Date: ${date}
+════════════════════════════════════════
+Analyzed by T&C Translator 🔍`;
+
+        navigator.clipboard.writeText(certText).then(() => {
+            const btn = event.target;
+            btn.textContent = '✅ Copied! Share away!';
+            setTimeout(() => { btn.textContent = '📋 Copy & Share Certificate'; }, 2500);
+        }).catch(() => {
+            alert('Copy this:\n\n' + certText);
+        });
+    }
+</script>
+
+</body>
+</html>

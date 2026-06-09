@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T&amp;C Translator — Find out what you're actually agreeing to</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+<div class="page-wrapper">
+    <header class="site-header">
+        <div class="header-emoji">🔍</div>
+        <h1>T&amp;C Translator</h1>
+        <p class="subtitle">Find out what you're <em>actually</em> agreeing to — in plain English!</p>
+    </header>
+
+    <main class="main-content">
+
+        <div th:if="${error}" class="error-box">
+            😬 <span th:text="${error}">Error message here</span>
+        </div>
+
+        <div class="intro-cards">
+            <div class="intro-card">
+                <span class="intro-icon">📋</span>
+                <span>Paste any T&amp;C text</span>
+            </div>
+            <div class="intro-arrow">→</div>
+            <div class="intro-card">
+                <span class="intro-icon">🤖</span>
+                <span>AI reads the boring stuff</span>
+            </div>
+            <div class="intro-arrow">→</div>
+            <div class="intro-card">
+                <span class="intro-icon">💡</span>
+                <span>You get plain English!</span>
+            </div>
+        </div>
+
+        <form action="/analyze" method="post" id="analyzeForm" class="upload-form">
+
+            <div class="form-group">
+                <label for="appName">App or Website Name <span class="optional">(optional)</span></label>
+                <input
+                    type="text"
+                    id="appName"
+                    name="appName"
+                    placeholder="e.g. Instagram, TikTok, Spotify..."
+                    autocomplete="off"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="tcText">Paste the Terms &amp; Conditions here 👇</label>
+                <textarea
+                    id="tcText"
+                    name="tcText"
+                    rows="12"
+                    placeholder="Paste the full Terms &amp; Conditions text here...&#10;&#10;Tip: Go to any app's T&amp;C page, press Ctrl+A to select all, Ctrl+C to copy, then paste here!"
+                    required
+                ></textarea>
+                <small class="form-hint" id="charCount">0 words — start pasting!</small>
+            </div>
+
+            <button type="submit" class="btn-primary" id="submitBtn">
+                Analyze This! 🚀
+            </button>
+
+            <p class="small-note">
+                ☕ We'll read the boring legal stuff so you don't have to!
+            </p>
+        </form>
+
+        <div class="fun-fact-box">
+            <h3>😱 Did you know?</h3>
+            <p>Instagram's Terms &amp; Conditions is longer than the Indian Constitution. Nobody reads these. That's exactly why we built this.</p>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <a th:href="@{/leaderboard}" class="footer-link">📊 View Leaderboard — Which apps are most sneaky?</a>
+        <p class="footer-note">A student project — built with Java Spring Boot + AI</p>
+    </footer>
+</div>
+
+<script>
+    const textarea = document.getElementById('tcText');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+    const form = document.getElementById('analyzeForm');
+
+    textarea.addEventListener('input', function() {
+        const words = this.value.trim() ? this.value.trim().split(/\s+/).length : 0;
+        if (words === 0) {
+            charCount.textContent = '0 words — start pasting!';
+        } else if (words < 100) {
+            charCount.textContent = words + ' words — paste more for better results!';
+        } else {
+            charCount.textContent = words.toLocaleString() + ' words — looks good! 👍';
+        }
+    });
+
+    form.addEventListener('submit', function() {
+        submitBtn.textContent = 'Reading the fine print... ⏳';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.7';
+    });
+</script>
+
+</body>
+</html>
